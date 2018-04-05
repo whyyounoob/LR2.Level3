@@ -1,9 +1,6 @@
 package by.company.View;
 
-import by.company.Model.Constants;
-import by.company.Model.Port;
-import by.company.Model.RegEx;
-import by.company.Model.Town;
+import by.company.Model.*;
 
 
 import java.awt.*;
@@ -24,8 +21,8 @@ public class MainWindow extends JFrame {
     private JLabel nameLabel = new JLabel("Tortuga");
     private JPanel portPanel = new JPanel();
     private JScrollPane portScroll = new JScrollPane(portPanel);
-    private JPanel infoPanel = new JPanel();
-    private JLabel infoLabel = new JLabel();
+    private static JPanel infoPanel = new JPanel();
+    private static JLabel infoLabel = new JLabel();
     private JScrollPane scrollTable = new JScrollPane();
     private JTable infoTable = new JTable();
     private JButton btnAddPort = new JButton("Add Port");
@@ -201,7 +198,7 @@ public class MainWindow extends JFrame {
 
         @Override
         public void mouseClicked(MouseEvent e) {
-            new AddShipWindow(portName);
+            new AddShipWindow();
             setPortPanel();
         }
 
@@ -293,20 +290,7 @@ public class MainWindow extends JFrame {
         @Override
         public void windowClosing(WindowEvent e) {
 
-            FileOutputStream fos = null;
-            try {
-                fos = new FileOutputStream("test.ser");
-                ObjectOutputStream oos = new ObjectOutputStream(fos);
-
-                oos.writeObject(Town.getInstance().getPortList());
-                oos.flush();
-                oos.close();
-
-            } catch (FileNotFoundException e1) {
-                e1.printStackTrace();
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
+            FileInput.inputFile();
 
             System.exit(0);
         }
@@ -335,6 +319,13 @@ public class MainWindow extends JFrame {
         public void windowDeactivated(WindowEvent e) {
 
         }
+    }
+
+    public static void resetPanel(){
+        infoLabel.repaint();
+        infoLabel.revalidate();
+        infoPanel.revalidate();
+        infoPanel.repaint();
     }
 
 }

@@ -37,8 +37,10 @@ public final class Town {
         portList.add(port);
     }
 
-    public static void addShip(String portName, Ship ship) {
-        String typeOfCargo;
+    public static int addShip(Ship ship) {
+
+        int ret = 0;
+        String typeOfCargo = "";
         switch (ship.getCargo()) {
             case "Gold":
             case "Rock":
@@ -64,12 +66,34 @@ public final class Town {
                 typeOfCargo = Constants.TYPEOFCARGO[3];
                 break;
         }
-        float size = 0.0f;
+
+        String portName = "";
+
+        float check = Float.MAX_VALUE;
+
         for (Port port : portList) {
-            if (port.getNamePort().equals(portName)) {
-                port.addShip(ship);
+            if (port.getStock().getTypeOfCargo().equals(typeOfCargo)) {
+                if (port.getPierList().size() == 0) {
+
+                } else {
+                    float temp = port.getShipList().size() / port.getPierList().size();
+                    if (temp < check) {
+                        check = temp;
+                        portName = port.getNamePort();
+                    }
+                }
             }
         }
+        if (portName.equals("")) {
+            ret = 1;
+        } else {
+            for (Port port : portList) {
+                if (port.getNamePort().equals(portName)) {
+                    port.addShip(ship);
+                }
+            }
+        }
+        return ret;
     }
 
     public static List<Ship> getShipList(String portName) {

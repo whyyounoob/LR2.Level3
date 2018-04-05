@@ -18,18 +18,17 @@ public class AddShipWindow extends JDialog {
     private JLabel weightLabel = new JLabel("Weight of cargo: ");
     private JTextField weightInput = new JTextField();
     private JLabel cargoLabel = new JLabel("Choose your cargo: ");
-    private JComboBox cargoList = new JComboBox(Constants.TYPEOFCARGO);
+    private JComboBox cargoList = new JComboBox(Constants.GOODS);
     private JLabel targetLabel = new JLabel("Choose ship`s target: ");
     private JComboBox targetList = new JComboBox(Constants.SHIP_TARGET);
     private JButton addBtn = new JButton("Add Ship");
-    private String portName;
 
-    public AddShipWindow(String portName) {
+
+    public AddShipWindow() {
 
         super((Dialog) null, "Add Ship", true);
         this.setBounds(500, 150, 300, 450);
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        this.portName = portName;
 
         Container container = this.getContentPane();
         container.setLayout(null);
@@ -78,16 +77,24 @@ public class AddShipWindow extends JDialog {
 
         @Override
         public void actionPerformed(ActionEvent e) {
+            int i = 0;
             if (nameInput.getText().isEmpty() || weightInput.getText().isEmpty()) {
                 JOptionPane.showMessageDialog(null,
                         "Fill in all the fields.", "Ooops...", 2);
             } else if (RegEx.checkShipWeight(weightInput.getText())) {
-                Town.getInstance().addShip(portName, new Ship(nameInput.getText(),
+                i = Town.getInstance().addShip(new Ship(nameInput.getText(),
                         (String) targetList.getSelectedItem(), Integer.parseInt(weightInput.getText())
                         , (String) cargoList.getSelectedItem()));
             } else {
                 JOptionPane.showMessageDialog(null,
                         "Enter the correct capacity of the stock.\n(10e+4-10e+10)", "Ooops...", 2);
+            }
+            if (i == 1) {
+                JOptionPane.showMessageDialog(null,"Sorry, but we can not accept a ship with this load...",
+                        "Ooops", 2);
+            } else {
+                JOptionPane.showMessageDialog(null, "Thw ship will be " +
+                        "successfully taken by our port town", "Congratulations!", JOptionPane.INFORMATION_MESSAGE);
             }
         }
     }

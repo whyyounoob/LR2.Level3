@@ -1,5 +1,6 @@
 package by.company.Model;
 
+import by.company.View.MainWindow;
 import by.company.View.PierTableModel;
 
 import javax.print.DocFlavor;
@@ -107,6 +108,7 @@ public class Port implements Serializable {
                         notifyObservers();
                     }
                     stock.setCapacity(startWeight);
+                    MainWindow.resetPanel();
 
                     status = "Ship is ready to be shipped.";
                     setChanged();

@@ -1,19 +1,23 @@
 package by.company.View;
 
+import by.company.Model.Constants;
 import by.company.Model.Port;
+import by.company.Model.RegEx;
+import by.company.Model.Town;
 
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.LineBorder;
-import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableModel;
 
 public class MainWindow extends JFrame {
 
@@ -29,8 +33,7 @@ public class MainWindow extends JFrame {
     private JButton btnAddShip = new JButton("Add Ship");
     private JButton btnShowShip = new JButton("Show ships");
     private JPanel btnPanel = new JPanel();
-
-    private ArrayList<Port> portList = new ArrayList<Port>();
+    private String portName;
 
     public MainWindow() {
 
@@ -38,11 +41,7 @@ public class MainWindow extends JFrame {
         this.setBounds(215, 100, 901, 550);
         this.setResizable(false);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLists();
-        infoLabel.setText("Name of port: " + portList.get(0).getNamePort() + ",  Numbers of piers: " + portList.get(0).pierList.size() +
-                ", What contains: " + portList.get(0).getStock().getTypeOfCargo() + ", Weight of stock: " + portList.get(0).getStock().getWeight() +
-                ", Ship at queue: " + portList.get(0).getShipList().size());
-        infoPanel.add(infoLabel);
+
 
         Container container = this.getContentPane();
         container.setLayout(null);
@@ -53,7 +52,13 @@ public class MainWindow extends JFrame {
         nameLabel.setHorizontalAlignment(SwingConstants.CENTER);
         nameLabel.setBorder(new LineBorder(new Color(0, 0, 0), 1));
 
-
+        /*portList.add(new Port("Tortuga", "Minerals", 10000000));
+        portList.get(0).addPier("Pier 1", 1000);
+        portList.get(0).addPier("Pier 2", 500);
+        portList.get(0).addPier("Pier 3", 400);
+        portList.add(new Port("Port 1", "Minerals", 2353454));
+        setPortPanel();
+*/
         container.add(portScroll);
         portScroll.setBounds(0, 70, 208, 330);
         portPanel.setSize(208, 330);
@@ -66,9 +71,13 @@ public class MainWindow extends JFrame {
         infoPanel.setBounds(215, 0, 680, 62);
 
         PierTableModel tableModel = new PierTableModel();
-        for (int i =0; i<portList.get(0).pierList.size();i++) {
-            tableModel.addRow(portList.get(0).pierList.get(i));
-        }
+
+        //tableModel.addRow(portList.get(0).pierList.get(0));
+
+        //tableModel.addRow(portList.get(0).pierList.get(1));
+
+        //tableModel.addRow(portList.get(0).pierList.get(2));
+
         infoTable.setModel(tableModel);
         scrollTable.setViewportView(infoTable);
         scrollTable.setBounds(215, 70, 680, 330);
@@ -76,62 +85,49 @@ public class MainWindow extends JFrame {
         GridLayout layout = new GridLayout(1, 4);
         layout.setHgap(8);
 
-        ProgressBarRenderer progressBarRenderer = new ProgressBarRenderer(0,100);
+        ProgressBarRenderer progressBarRenderer = new ProgressBarRenderer(0, 100);
         progressBarRenderer.setStringPainted(true);
         infoTable.setDefaultRenderer(JProgressBar.class, progressBarRenderer);
+
+        infoTable.setRowHeight((int) progressBarRenderer.getPreferredSize().getHeight());
 
         btnPanel.setLayout(layout);
         btnPanel.add(btnAddPort);
         btnPanel.add(btnAddPier);
         btnPanel.add(btnAddShip);
         btnPanel.add(btnShowShip);
-        btnAddPier.addActionListener(new AddPierActionListener());
-        btnShowShip.addActionListener(new ShowShipActionListener());
-        btnAddShip.addActionListener(new AddShipActionListener());
-        btnAddPort.addActionListener(new AddPortActionListener());
+        btnAddPier.addMouseListener(new AddPierActionListener());
+        btnShowShip.addMouseListener(new ShowShipActionListener());
+        btnAddShip.addMouseListener(new AddShipMouseListener());
+        btnAddPort.addMouseListener(new AddPortActionListener());
 
         container.add(btnPanel);
         btnPanel.setBounds(0, 408, 901, 60);
+
+        this.addWindowListener(new WindowClose());
 
         setVisible(true);
 
     }
 
+
     public void setPortPanel() {
+        this.portPanel.removeAll();
 
-
-        for (int i = 0; i < portList.size(); i++) {
+        for (int i = 0; i < Town.getInstance().getPortList().size(); i++) {
             JPanel panel = new JPanel();
             panel.setPreferredSize(new Dimension(190, 70));
-            JLabel portLabel = new JLabel(portList.get(i).getNamePort());
+            JLabel portLabel = new JLabel(Town.getInstance().getPortList().get(i).getNamePort());
             panel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), BorderFactory.createEmptyBorder(0, 0, 0, 0)));
             panel.add(portLabel);
-            panel.addMouseListener(new PortLabelAction(portList.get(i)));
-            panel.setToolTipText(portList.get(i).getNamePort());
+            panel.addMouseListener(new PortLabelAction(Town.getInstance().getPortList().get(i)));
+            panel.setToolTipText(Town.getInstance().getPortList().get(i).getNamePort());
 
             this.portPanel.add(panel);
         }
-    }
 
-    public void setLists() {
-        portList.add(new Port("Port 1", "Food"));
-        portList.add(new Port("Port 2", "Minerals"));
-        portList.add(new Port("Port 3", "Drugs"));
-        portList.add(new Port("Port 4", "Alcohol"));
-        portList.add(new Port("Port 5", "People"));
-        portList.add(new Port("Port 6", "Mechanism"));
-        portList.add(new Port("Port 7", "Other"));
-        for (int i = 0; i < 5; i++) {
-            portList.get(0).addPier(new String("Pier " + i), 100);
-        }
-
-        for (int i = 0; i < 6; i++) {
-            portList.get(1).addPier(new String("Pier " + i), 100);
-        }
-
-        for (int i = 0; i < 4; i++) {
-            portList.get(5).addPier(new String("Pier " + i), 100);
-        }
+        this.portPanel.repaint();
+        this.portScroll.revalidate();
     }
 
     class PortLabelAction implements MouseListener {
@@ -140,16 +136,16 @@ public class MainWindow extends JFrame {
 
         public PortLabelAction(Port port) {
             this.port = port;
-
         }
 
         @Override
         public void mouseClicked(MouseEvent e) {
-            infoLabel.setText("Name of port: " + port.getNamePort() + ",  Numbers of piers: " + port.pierList.size() +
-                    ", What contains: " + port.getStock().getTypeOfCargo() + ", Weight of stock: " + port.getStock().getWeight() +
-                    ", Ship at queue: " + port.getShipList().size());
+            portName = port.getNamePort();
+            infoLabel.setText("Name of port: " + port.getNamePort() + ",\n  Numbers of piers: " + port.getPierList().size()  + ", Capacity of stock: " + port.getStock().getCapacity() +
+                    ", Ship at queue: " + port.getShipList().size() + ", Left capacity: " + port.getStock().getLeftCapacity());
             infoPanel.add(infoLabel);
             infoPanel.repaint();
+            infoTable.setModel(port.getTableModel());
         }
 
         @Override
@@ -173,32 +169,170 @@ public class MainWindow extends JFrame {
         }
     }
 
-    class AddPierActionListener implements ActionListener {
+    class AddPierActionListener implements MouseListener {
 
         @Override
-        public void actionPerformed(ActionEvent e) {
-            JDialog window = new JDialog((Frame) null, "", true);
-            window.setBounds(500, 150, 300, 300);
-            window.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            window.setVisible(true);
+        public void mouseClicked(MouseEvent e) {
+            new AddPierWindow(portName);
+        }
+
+        @Override
+        public void mousePressed(MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseEntered(MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseExited(MouseEvent e) {
+
         }
     }
 
-    class AddShipActionListener implements ActionListener {
+    class AddShipMouseListener implements MouseListener {
 
         @Override
-        public void actionPerformed(ActionEvent e) {
-            JDialog window = new JDialog((Frame) null, "", true);
-            window.setBounds(500, 150, 300, 300);
-            window.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            window.setVisible(true);
+        public void mouseClicked(MouseEvent e) {
+            new AddShipWindow(portName);
+            setPortPanel();
+        }
+
+        @Override
+        public void mousePressed(MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseEntered(MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseExited(MouseEvent e) {
+
         }
     }
 
-    class AddPortActionListener implements ActionListener {
+    class AddPortActionListener implements MouseListener {
 
         @Override
-        public void actionPerformed(ActionEvent e) {
+        public void mouseClicked(MouseEvent e) {
+            new AddPortWindow();
+            setPortPanel();
+        }
+
+        @Override
+        public void mousePressed(MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseEntered(MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseExited(MouseEvent e) {
+
+        }
+    }
+
+    class ShowShipActionListener implements MouseListener {
+
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            new ShowShipWindow(portName);
+        }
+
+        @Override
+        public void mousePressed(MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseEntered(MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseExited(MouseEvent e) {
+
+        }
+    }
+
+    class WindowClose implements WindowListener {
+
+        @Override
+        public void windowOpened(WindowEvent e) {
+            //Town.getInstance().setPortList();
+        }
+
+        @Override
+        public void windowClosing(WindowEvent e) {
+
+            FileOutputStream fos = null;
+            try {
+                fos = new FileOutputStream("test.ser");
+                ObjectOutputStream oos = new ObjectOutputStream(fos);
+
+                oos.writeObject(Town.getInstance().getPortList());
+                oos.flush();
+                oos.close();
+
+            } catch (FileNotFoundException e1) {
+                e1.printStackTrace();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+
+            System.exit(0);
+        }
+
+        @Override
+        public void windowClosed(WindowEvent e) {
+
+        }
+
+        @Override
+        public void windowIconified(WindowEvent e) {
+
+        }
+
+        @Override
+        public void windowDeiconified(WindowEvent e) {
+
+        }
+
+        @Override
+        public void windowActivated(WindowEvent e) {
+
+        }
+
+        @Override
+        public void windowDeactivated(WindowEvent e) {
 
         }
     }

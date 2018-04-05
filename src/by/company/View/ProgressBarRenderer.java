@@ -13,7 +13,8 @@ public class ProgressBarRenderer extends JProgressBar implements TableCellRender
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
                                                    boolean hasFocus, int row, int column) {
-
+        //System.out.println("pisos");
+        //System.out.println(value);
         setValue((int) ((Float) value).floatValue());
         return this;
     }

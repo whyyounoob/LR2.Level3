@@ -4,13 +4,14 @@ import by.company.Model.Port;
 import by.company.Model.Ship;
 import javafx.beans.InvalidationListener;
 
+import java.io.Serializable;
 import java.util.Observable;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
 import java.util.Observer;
 
-public class PierTableModel extends AbstractTableModel implements Observer {
+public class PierTableModel extends AbstractTableModel implements Observer, Serializable {
 
     private ArrayList<Port.Pier> data = new ArrayList<Port.Pier>();
 
@@ -18,7 +19,8 @@ public class PierTableModel extends AbstractTableModel implements Observer {
         data.add(pier);
 
         pier.addObserver(this);
-        fireTableRowsInserted(data.size() - 1, data.size() - 1);
+        //fireTableRowsInserted(data.size() - 1, data.size() - 1);
+        fireTableDataChanged();
     }
 
     @Override
@@ -28,7 +30,7 @@ public class PierTableModel extends AbstractTableModel implements Observer {
 
     @Override
     public int getColumnCount() {
-        return GUIConstants.headers.length;
+        return GUIConstants.PIER_TABLE_HEADERS.length;
     }
 
     @Override
@@ -37,40 +39,53 @@ public class PierTableModel extends AbstractTableModel implements Observer {
         if (columnIndex == 0) return pier.getNamePier();
         else if (columnIndex == 1) return (Integer) pier.getSpeed();
         else if (columnIndex == 2) return pier.getStatus();
-        else if (columnIndex == 4) {
+        else if (columnIndex == 3) {
             if (pier.getShip() == null) {
                 return "----";
             } else {
                 return pier.getShip().getNameShip();
             }
-        } else if (columnIndex == 5) {
+        } else if (columnIndex == 4) {
             if (pier.getShip() == null) {
                 return "----";
             } else {
                 return pier.getShip().getCargo();
             }
-        } else if (columnIndex == 6) {
+        } else if (columnIndex == 5) {
             if (pier.getShip() == null) {
                 return null;
             } else {
-                return (Integer) pier.getShip().getWeight();
+                return (Long) pier.getStartWeight();
             }
-        } else if (columnIndex == 7) return (Float) pier.getProgress();
+        } else if (columnIndex == 6) return new Float (pier.getProgress());
         else return null;
     }
 
     @Override
     public Class getColumnClass(int c) {
-        return GUIConstants.columnClasses[c];
+        return GUIConstants.PIER_COLUMN_CLASSES[c];
     }
 
     @Override
     public String getColumnName(int col) {
-        return GUIConstants.headers[col];
+        return GUIConstants.PIER_TABLE_HEADERS[col];
     }
 
     @Override
     public void update(Observable o, Object arg) {
+        int index = data.indexOf(o);
+        /*if (index != -1)
+            fireTableRowsUpdated(index, index);*/
+        fireTableDataChanged();
+    }
 
+    @Override
+    public boolean isCellEditable(int row, int col) {
+        return false;
+    }
+
+    public void removeAll(){
+        data.clear();
+        fireTableRowsDeleted(0,data.size());
     }
 }

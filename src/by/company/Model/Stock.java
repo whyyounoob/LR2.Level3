@@ -1,24 +1,32 @@
 package by.company.Model;
 
-public class Stock {
+import java.io.Serializable;
 
-    private int weight;
+public class Stock implements Serializable{
+
+    private long maxCapacity;
+    private long leftCapacity;
     private String typeOfCargo;
 
-    public Stock(String typeOfCargo){
+    public Stock(String typeOfCargo, long capacity){
         this.typeOfCargo = typeOfCargo;
-        weight = 0;
+        this.maxCapacity = capacity;
+        leftCapacity = capacity;
     }
 
-    public int getWeight() {
-        return weight;
+    public long getCapacity() {
+        return maxCapacity;
     }
 
-    public void setWeight(int weight) {
-        this.weight += weight;
+    public void setCapacity(long weight) {
+        this.leftCapacity -= weight;
     }
 
     public String getTypeOfCargo() {
         return typeOfCargo;
+    }
+
+    public long getLeftCapacity() {
+        return leftCapacity;
     }
 }

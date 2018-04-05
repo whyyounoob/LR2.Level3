@@ -1,21 +1,26 @@
 package by.company.Model;
 
+import by.company.View.PierTableModel;
+
+import javax.print.DocFlavor;
+import java.io.Serializable;
 import java.util.*;
 
 
-public class Port {
+public class Port implements Serializable {
 
     private String namePort;
     private Stock stock;
-    public List<Pier> pierList = new ArrayList<Pier>();
-    public List<Ship> shipList = Collections.synchronizedList(new ArrayList<Ship>());
+    private List<Pier> pierList = new ArrayList<Pier>();
+    private List<Ship> shipList = Collections.synchronizedList(new ArrayList<Ship>());
+    private PierTableModel tableModel = new PierTableModel();
 
-    public Port(String namePort, String typeOfCargo) {
+    public Port(String namePort, String typeOfCargo, long capacity) {
         this.namePort = namePort;
-        stock = new Stock(typeOfCargo);
-        for(int i = 0; i<pierList.size();i++){
+        stock = new Stock(typeOfCargo, capacity);
+        /*for(int i = 0; i<pierList.size();i++){
             new Thread(pierList.get(i)).start();
-        }
+        }*/
     }
 
     public String getNamePort() {
@@ -30,26 +35,29 @@ public class Port {
         return shipList;
     }
 
-    public void addPier(String namePier, int speed){
-        pierList.add(new Pier(namePier, speed));
-        new Thread(pierList.get(pierList.size()-1)).start();
+    public void addPier(String namePier, int speed) {
+        Pier pier = new Pier(namePier, speed);
+        pierList.add(pier);
+        tableModel.addRow(pier);
+        new Thread(pierList.get(pierList.size() - 1)).start();
     }
 
-
-    public class Pier extends Observable implements Runnable{
+    public class Pier extends Observable implements Runnable, Serializable {
 
 
         private String namePier;
         private String status;
         private int speed;
         private float progress;
-        private Ship ship;
+        private Ship ship = null;
 
-        public Pier(String namePier, int speed){
+        private long startWeight;
+
+        public Pier(String namePier, int speed) {
             this.namePier = namePier;
             this.speed = speed;
             status = "Waiting.";
-            progress = 10.0f;
+            progress = 0.0f;
             ship = null;
         }
 
@@ -61,7 +69,7 @@ public class Port {
             return status;
         }
 
-        public int getSpeed(){
+        public int getSpeed() {
             return speed;
         }
 
@@ -73,11 +81,113 @@ public class Port {
             return progress;
         }
 
+        public long getStartWeight(){
+            return startWeight;
+        }
+
         @Override
         public void run() {
+            while (true) {
+                if (ship != null) {
+                    status = "Ship here.";
+                    setChanged();
+                    notifyObservers();
+                    while (ship.getWeight() > 0) {
+
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
+                        ship.setWeight(ship.getWeight() - speed);
+                        progress = 100 - ((float) ship.getWeight() / startWeight) * 100;
+                       // System.out.println(progress);
+                        setChanged();
+                        notifyObservers();
+                    }
+                    stock.setCapacity(startWeight);
+
+                    status = "Ship is ready to be shipped.";
+                    setChanged();
+                    notifyObservers();
+                    try {
+                        Thread.sleep(3000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    ship = null;
+                    status = "Waiting for ship";
+                    progress = 0.0f;
+                    setChanged();
+                    notifyObservers();
+                }
+                if (shipList.isEmpty()) {
+                    synchronized (shipList) {
+                        status = "Waiting for ship.";
+                        setChanged();
+                        notifyObservers();
+                        try {
+                            shipList.wait();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        this.ship = shipList.get(0);
+                        shipList.remove(0);
+                        status = "Ship here.";
+                        startWeight = ship.getWeight();
+                        setChanged();
+                        notifyObservers();
+                    }
+                } else {
+                    this.ship = shipList.get(0);
+                    shipList.remove(0);
+                    status = "Ship here.";
+                    startWeight = ship.getWeight();
+                    setChanged();
+                    notifyObservers();
+                }
+
+            }
 
         }
 
     }
 
+    public void addShip(Ship ship) {
+        new AddShip(ship);
+    }
+
+    public PierTableModel getTableModel() {
+        tableModel.removeAll();
+        for (Pier pier : pierList) {
+            tableModel.addRow(pier);
+        }
+        return tableModel;
+    }
+
+
+    public List<Pier> getPierList() {
+        return pierList;
+    }
+
+    class AddShip extends Thread {
+
+        private Ship ship;
+
+
+        public AddShip(Ship ship) {
+            this.ship = ship;
+            this.start();
+        }
+
+
+        @Override
+        public void run() {
+            synchronized (shipList) {
+                shipList.add(ship);
+                shipList.notify();
+            }
+        }
+    }
 }

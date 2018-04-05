@@ -1,8 +1,10 @@
 package by.company.Model;
 
 public class Constants {
-    public static final String[] HEADERS_COLUMN = { "id Ship", "Ship name", "What we download", "Weight",
-            "Pier condition", "Time left" };
-    public static final String[] SHIP_STATUS = {"IN QUEUE", "LOADING", "UNLOADING"};
+
+    public static final String[] SHIP_TARGET = {"Loading", "Unloading"};
+    public static final String[] TYPEOFCARGO = {"Minerals", "Food", "Illegal goods", "Clothes"};
+    public static final String[] GOODS = {"Gold", "Coal", "Rock","Coca Cola", "Pepsi", "Sugar", "Salt",
+            "Sereals", "People", "Drugs", "Adidas", "Nike", "Puma", "Dislabel", "Stone Island"};
 
 }

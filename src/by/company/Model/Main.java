@@ -3,8 +3,7 @@ package by.company.Model;
 import by.company.View.MainWindow;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Vector;
+import java.util.*;
 
 public class Main {
     public static void main(String args[]) throws IOException, ClassNotFoundException {
@@ -16,6 +15,7 @@ public class Main {
         new FileInput().start();
 
         MainWindow mainWindow = new MainWindow();
+
 
     }
 }

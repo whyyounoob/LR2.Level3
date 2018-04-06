@@ -77,6 +77,8 @@ public class AddPortWindow extends JDialog {
                 typeOfCargo = (String) listOfCargo.getSelectedItem();
                 capacity = Long.parseLong(capacityField.getText());
                 Town.getInstance().addPort(new Port(namePort, typeOfCargo, capacity));
+                JOptionPane.showMessageDialog(null, "POrt add.", "Niiice.",
+                        JOptionPane.INFORMATION_MESSAGE);
 
                 //setPortPanel();
             } else {

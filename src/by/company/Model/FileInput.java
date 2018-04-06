@@ -12,7 +12,7 @@ public class FileInput extends Thread {
             try {
                 inputFile();
                 System.out.println("Zapiska");
-                Thread.sleep(5000);
+                Thread.sleep(Constants.FILE_INPUT_TIME);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

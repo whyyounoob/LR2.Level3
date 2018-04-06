@@ -18,7 +18,7 @@ public class AddShipWindow extends JDialog {
     private JLabel weightLabel = new JLabel("Weight of cargo: ");
     private JTextField weightInput = new JTextField();
     private JLabel cargoLabel = new JLabel("Choose your cargo: ");
-    private JComboBox cargoList = new JComboBox(Constants.GOODS);
+    private JComboBox cargoList = new JComboBox(Constants.MINERALS_GOODS);
     private JLabel targetLabel = new JLabel("Choose ship`s target: ");
     private JComboBox targetList = new JComboBox(Constants.SHIP_TARGET);
     private JButton addBtn = new JButton("Add Ship");
@@ -32,6 +32,16 @@ public class AddShipWindow extends JDialog {
 
         Container container = this.getContentPane();
         container.setLayout(null);
+
+        for(String str : Constants.CLOTHES_GOODS){
+            cargoList.addItem(str);
+        }
+        for(String str : Constants.FOOD_GOODS){
+            cargoList.addItem(str);
+        }
+        for(String str : Constants.ILLEGAL_GOODS){
+            cargoList.addItem(str);
+        }
 
         nameLabel.setBounds(20, 15, 250, 30);
         nameLabel.setFont(new Font("Tahoma", Font.BOLD, 20));

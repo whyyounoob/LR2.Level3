@@ -58,6 +58,8 @@ public class AddPierWindow extends JDialog {
                 JOptionPane.showMessageDialog(null, "Fill in all the fields.", "Ooops...", 2);
             } else if (RegEx.checkpierSpeed(speedInput.getText())) {
                 Town.getInstance().addPier(portName, nameInput.getText(), Integer.parseInt(speedInput.getText()));
+                JOptionPane.showMessageDialog(null, "Pier add.", "Niiice.",
+                        JOptionPane.INFORMATION_MESSAGE);
             } else {
                 JOptionPane.showMessageDialog(null,
                         "Enter the correct capacity of the stock.\n(10e+5-10e+20)", "Ooops...", 2);

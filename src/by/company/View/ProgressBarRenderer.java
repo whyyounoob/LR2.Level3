@@ -4,17 +4,34 @@ import javax.swing.*;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 
-public class ProgressBarRenderer extends JProgressBar implements TableCellRenderer {
+/**
+ * Class creating renderer for table.
+ *
+ * @author Maxim Borodin
+ */
 
-    public ProgressBarRenderer(int min, int max) {
+public class ProgressBarRenderer extends JProgressBar
+        implements TableCellRenderer {
+
+    /**
+     * Constructor for progress bar.
+     *
+     * @param max max value of progress bar
+     * @param min min value of progress bar
+     */
+
+    public ProgressBarRenderer(final int min, final int max) {
         super(min, max);
     }
 
     @Override
-    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
-                                                   boolean hasFocus, int row, int column) {
-        //System.out.println("pisos");
-        //System.out.println(value);
+    public Component getTableCellRendererComponent(final JTable table,
+                                                   final Object value,
+                                                   final boolean isSelected,
+                                                   final boolean hasFocus,
+                                                   final int row,
+                                                   final int column) {
+
         setValue((int) ((Float) value).floatValue());
         return this;
     }

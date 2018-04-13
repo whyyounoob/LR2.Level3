@@ -1,36 +1,49 @@
 package by.company.View;
 
-import by.company.Model.*;
-
-
-import java.awt.*;
-import java.awt.event.*;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.util.ArrayList;
+import by.company.Controller.Town;
+import by.company.Model.FileInput;
+import by.company.Model.Port;
 
 import javax.swing.*;
-import javax.swing.border.EtchedBorder;
 import javax.swing.border.LineBorder;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+
+/**
+ * This method for creating main window.
+ *
+ * @author Maxim Borodin
+ */
 
 public class MainWindow extends JFrame {
 
     private JLabel nameLabel = new JLabel("Tortuga");
-    private JPanel portPanel = new JPanel();
-    private JScrollPane portScroll = new JScrollPane(portPanel);
     private static JPanel infoPanel = new JPanel();
-    private static JLabel infoLabel = new JLabel();
     private JScrollPane scrollTable = new JScrollPane();
-    private JTable infoTable = new JTable();
+    private static JTable infoTable = new JTable();
     private JButton btnAddPort = new JButton("Add Port");
     private JButton btnAddPier = new JButton("Add Pier");
     private JButton btnAddShip = new JButton("Add Ship");
     private JButton btnShowShip = new JButton("Show ships");
     private JPanel btnPanel = new JPanel();
-    private String portName;
+    private static String portName = "";
+    private static DefaultListModel<String> listModel =
+            new DefaultListModel<String>();
+    private static JList<String> portList = new JList<String>(listModel);
+    private static JScrollPane portPane = new JScrollPane(portList);
+
+    private static JLabel namePortLabel = new JLabel();
+    private static JLabel leftShipLabel = new JLabel();
+    private static JLabel stockStatus = new JLabel();
+
+    /**
+     * This constructor describes the window.
+     */
 
     public MainWindow() {
 
@@ -38,7 +51,6 @@ public class MainWindow extends JFrame {
         this.setBounds(215, 100, 901, 550);
         this.setResizable(false);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
 
         Container container = this.getContentPane();
         container.setLayout(null);
@@ -49,31 +61,29 @@ public class MainWindow extends JFrame {
         nameLabel.setHorizontalAlignment(SwingConstants.CENTER);
         nameLabel.setBorder(new LineBorder(new Color(0, 0, 0), 1));
 
-        /*portList.add(new Port("Tortuga", "Minerals", 10000000));
-        portList.get(0).addPier("Pier 1", 1000);
-        portList.get(0).addPier("Pier 2", 500);
-        portList.get(0).addPier("Pier 3", 400);
-        portList.add(new Port("Port 1", "Minerals", 2353454));
-        setPortPanel();
-*/
-        container.add(portScroll);
-        portScroll.setBounds(0, 70, 208, 330);
-        portPanel.setSize(208, 330);
+        container.add(portPane);
+        portPane.setBounds(0, 70, 208, 330);
+        setListModel();
 
-        portPanel.setLayout(new BoxLayout(portPanel, BoxLayout.Y_AXIS));
-        setPortPanel();
+        portList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        portList.addListSelectionListener(new ChoosePort());
 
         container.add(infoPanel);
+        infoPanel.setLayout(null);
         infoPanel.setBorder(new LineBorder(new Color(0, 0, 0), 1));
         infoPanel.setBounds(215, 0, 680, 62);
+        infoPanel.add(namePortLabel);
+        namePortLabel.setBounds(5, 0, 300, 40);
+        namePortLabel.setFont(new Font("Times New Roman", 3, 30));
+        infoPanel.add(leftShipLabel);
+        leftShipLabel.setBounds(300, 8, 200, 30);
+        leftShipLabel.setFont(new Font("Times New Roman", 3, 20));
+        infoPanel.add(stockStatus);
+        stockStatus.setBounds(5, 40, 670, 20);
+        stockStatus.setFont(new Font("Times New Roman", 3, 14));
 
         PierTableModel tableModel = new PierTableModel();
-
-        //tableModel.addRow(portList.get(0).pierList.get(0));
-
-        //tableModel.addRow(portList.get(0).pierList.get(1));
-
-        //tableModel.addRow(portList.get(0).pierList.get(2));
 
         infoTable.setModel(tableModel);
         scrollTable.setViewportView(infoTable);
@@ -82,11 +92,14 @@ public class MainWindow extends JFrame {
         GridLayout layout = new GridLayout(1, 4);
         layout.setHgap(8);
 
-        ProgressBarRenderer progressBarRenderer = new ProgressBarRenderer(0, 100);
+        ProgressBarRenderer progressBarRenderer =
+                new ProgressBarRenderer(0, 100);
         progressBarRenderer.setStringPainted(true);
         infoTable.setDefaultRenderer(JProgressBar.class, progressBarRenderer);
 
-        infoTable.setRowHeight((int) progressBarRenderer.getPreferredSize().getHeight());
+        infoTable.setRowHeight((int) progressBarRenderer
+                .getPreferredSize().getHeight());
+
 
         btnPanel.setLayout(layout);
         btnPanel.add(btnAddPort);
@@ -107,188 +120,166 @@ public class MainWindow extends JFrame {
 
     }
 
+    /**
+     * This method create list model in the begining.
+     */
 
-    public void setPortPanel() {
-        this.portPanel.removeAll();
-
+    public void setListModel() {
+        listModel.removeAllElements();
         for (int i = 0; i < Town.getInstance().getPortList().size(); i++) {
-            JPanel panel = new JPanel();
-            panel.setPreferredSize(new Dimension(190, 70));
-            JLabel portLabel = new JLabel(Town.getInstance().getPortList().get(i).getNamePort());
-            panel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), BorderFactory.createEmptyBorder(0, 0, 0, 0)));
-            panel.add(portLabel);
-            panel.addMouseListener(new PortLabelAction(Town.getInstance().getPortList().get(i)));
-            panel.setToolTipText(Town.getInstance().getPortList().get(i).getNamePort());
-
-            this.portPanel.add(panel);
-        }
-
-        this.portPanel.repaint();
-        this.portScroll.revalidate();
-    }
-
-    class PortLabelAction implements MouseListener {
-
-        Port port;
-
-        public PortLabelAction(Port port) {
-            this.port = port;
-        }
-
-        @Override
-        public void mouseClicked(MouseEvent e) {
-            portName = port.getNamePort();
-            infoLabel.setText("Name of port: " + port.getNamePort() + ",\n  Numbers of piers: " + port.getPierList().size()  + ", Capacity of stock: " + port.getStock().getCapacity() +
-                    ", Ship at queue: " + port.getShipList().size() + ", Left capacity: " + port.getStock().getLeftCapacity());
-            infoPanel.add(infoLabel);
-            infoPanel.repaint();
-            infoTable.setModel(port.getTableModel());
-        }
-
-        @Override
-        public void mousePressed(MouseEvent e) {
-
-        }
-
-        @Override
-        public void mouseReleased(MouseEvent e) {
-
-        }
-
-        @Override
-        public void mouseEntered(MouseEvent e) {
-
-        }
-
-        @Override
-        public void mouseExited(MouseEvent e) {
-
+            listModel.addElement(Town.getInstance().getPortList()
+                    .get(i).getNamePort());
         }
     }
+
+    /**
+     * This class add mouse listener for Add Pier Button.
+     */
 
     class AddPierActionListener implements MouseListener {
 
         @Override
-        public void mouseClicked(MouseEvent e) {
+        public void mouseClicked(final MouseEvent e) {
             new AddPierWindow(portName);
         }
 
         @Override
-        public void mousePressed(MouseEvent e) {
+        public void mousePressed(final MouseEvent e) {
 
         }
 
         @Override
-        public void mouseReleased(MouseEvent e) {
+        public void mouseReleased(final MouseEvent e) {
 
         }
 
         @Override
-        public void mouseEntered(MouseEvent e) {
+        public void mouseEntered(final MouseEvent e) {
 
         }
 
         @Override
-        public void mouseExited(MouseEvent e) {
+        public void mouseExited(final MouseEvent e) {
 
         }
     }
+
+    /**
+     * This class add mouse listener for Add Ship Button.
+     */
 
     class AddShipMouseListener implements MouseListener {
 
         @Override
-        public void mouseClicked(MouseEvent e) {
+        public void mouseClicked(final MouseEvent e) {
             new AddShipWindow();
-            setPortPanel();
         }
 
         @Override
-        public void mousePressed(MouseEvent e) {
-
-        }
-
-        @Override
-        public void mouseReleased(MouseEvent e) {
+        public void mousePressed(final MouseEvent e) {
 
         }
 
         @Override
-        public void mouseEntered(MouseEvent e) {
+        public void mouseReleased(final MouseEvent e) {
 
         }
 
         @Override
-        public void mouseExited(MouseEvent e) {
+        public void mouseEntered(final MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseExited(final MouseEvent e) {
 
         }
     }
+
+    /**
+     * This class add mouse listener for Add Port Button.
+     */
 
     class AddPortActionListener implements MouseListener {
 
         @Override
-        public void mouseClicked(MouseEvent e) {
+        public void mouseClicked(final MouseEvent e) {
             new AddPortWindow();
-            setPortPanel();
-        }
-
-        @Override
-        public void mousePressed(MouseEvent e) {
 
         }
 
         @Override
-        public void mouseReleased(MouseEvent e) {
+        public void mousePressed(final MouseEvent e) {
 
         }
 
         @Override
-        public void mouseEntered(MouseEvent e) {
+        public void mouseReleased(final MouseEvent e) {
 
         }
 
         @Override
-        public void mouseExited(MouseEvent e) {
+        public void mouseEntered(final MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseExited(final MouseEvent e) {
 
         }
     }
+
+    /**
+     * This class add mouse listener for Show ship Button.
+     */
 
     class ShowShipActionListener implements MouseListener {
 
         @Override
-        public void mouseClicked(MouseEvent e) {
-            new ShowShipWindow(portName);
-        }
-
-        @Override
-        public void mousePressed(MouseEvent e) {
-
-        }
-
-        @Override
-        public void mouseReleased(MouseEvent e) {
+        public void mouseClicked(final MouseEvent e) {
+            if (portName.equals("")) {
+                JOptionPane.showMessageDialog(null,
+                        "Choose or add port.", "Ooooops...", 1);
+            } else {
+                new ShowShipWindow(portName);
+            }
 
         }
 
         @Override
-        public void mouseEntered(MouseEvent e) {
+        public void mousePressed(final MouseEvent e) {
 
         }
 
         @Override
-        public void mouseExited(MouseEvent e) {
+        public void mouseReleased(final MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseEntered(final MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseExited(final MouseEvent e) {
 
         }
     }
 
+    /**
+     * Properties of window close.
+     */
+
     class WindowClose implements WindowListener {
 
         @Override
-        public void windowOpened(WindowEvent e) {
-            //Town.getInstance().setPortList();
+        public void windowOpened(final WindowEvent e) {
+
         }
 
         @Override
-        public void windowClosing(WindowEvent e) {
+        public void windowClosing(final WindowEvent e) {
 
             FileInput.inputFile();
 
@@ -296,36 +287,76 @@ public class MainWindow extends JFrame {
         }
 
         @Override
-        public void windowClosed(WindowEvent e) {
+        public void windowClosed(final WindowEvent e) {
 
         }
 
         @Override
-        public void windowIconified(WindowEvent e) {
+        public void windowIconified(final WindowEvent e) {
 
         }
 
         @Override
-        public void windowDeiconified(WindowEvent e) {
+        public void windowDeiconified(final WindowEvent e) {
 
         }
 
         @Override
-        public void windowActivated(WindowEvent e) {
+        public void windowActivated(final WindowEvent e) {
 
         }
 
         @Override
-        public void windowDeactivated(WindowEvent e) {
+        public void windowDeactivated(final WindowEvent e) {
 
         }
     }
 
-    public static void resetPanel(){
-        infoLabel.repaint();
-        infoLabel.revalidate();
-        infoPanel.revalidate();
-        infoPanel.repaint();
+    /**
+     * This class crate selection listener for every port in list.
+     */
+
+    class ChoosePort implements ListSelectionListener {
+
+        @Override
+        public void valueChanged(final ListSelectionEvent e) {
+
+            String name = (String) portList.getSelectedValue();
+            setInfo(name);
+
+        }
     }
 
+    /**
+     * This method set info about class at info panel.
+     *
+     * @param name name of port
+     */
+
+    public static void setInfo(final String name) {
+
+        Port port = null;
+        for (int i = 0; i < Town.getInstance().getPortList().size(); i++) {
+            if (Town.getInstance().getPortList().get(i)
+                    .getNamePort().equals(name)) {
+                port = Town.getInstance().getPortList().get(i);
+            }
+        }
+        infoTable.setModel(port.getTableModel());
+        portName = port.getNamePort();
+        stockStatus.setText(port.getStock().getStockStatus());
+        namePortLabel.setText(port.getNamePort());
+        leftShipLabel.setText("Ship in queue: " + port.getShipList().size());
+
+    }
+
+    /**
+     * This method add 1 port at list.
+     *
+     * @param name name of new port
+     */
+
+    public static void addElement(final String name) {
+        listModel.addElement(name);
+    }
 }

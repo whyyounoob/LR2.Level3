@@ -1,4 +1,8 @@
-package by.company.Model;
+package by.company.Controller;
+
+import by.company.Model.Constants;
+import by.company.Model.Port;
+import by.company.Model.Ship;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,11 +59,23 @@ public final class Town {
     /**
      * Add port for our town.
      *
-     * @param port - adde port
+     * @param namePort    - new port`s name
+     * @param typeOfCargo - new port`s type of cargo
+     * @param capacity    - new port`s capacity of stock
      */
 
-    public static void addPort(Port port) {
-        portList.add(port);
+    public static int addPort(final String namePort, final String typeOfCargo, final long capacity) {
+        int ret = 1;
+        for (Port port : portList) {
+            if (port.getNamePort().equals(namePort)) {
+                ret = 0;
+                break;
+            }
+        }
+        if (ret == 1) {
+            portList.add(new Port(namePort, typeOfCargo, capacity));
+        }
+        return ret;
     }
 
     /**
@@ -108,11 +124,14 @@ public final class Town {
                 if (port.getPierList().size() == 0) {
 
                 } else {
-                    float temp = port.getShipList().size() / port.getPierList().size();
-                    if (temp < check) {
-                        check = temp;
-                        portName = port.getNamePort();
+                    if (port.getStock().checkGood(ship.getTarget(), ship.getCargo(), ship.getWeight())) {
+                        float temp = port.getShipList().size() / port.getPierList().size();
+                        if (temp < check) {
+                            check = temp;
+                            portName = port.getNamePort();
+                        }
                     }
+
                 }
             }
         }
@@ -121,9 +140,7 @@ public final class Town {
         } else {
             for (Port port : portList) {
                 if (port.getNamePort().equals(portName)) {
-                    if (port.getStock().checkGood(ship.getTarget(), ship.getCargo(), ship.getWeight())) {
-                        port.addShip(ship);
-                    } else ret = 1;
+                    port.addShip(ship);
                 }
             }
         }
@@ -154,12 +171,15 @@ public final class Town {
      * @param speed    pier`s speed of loading/unloading
      */
 
-    public static void addPier(String portName, String pierName, int speed) {
+    public static int addPier(String portName, String pierName, int speed) {
+
         for (Port port : portList) {
             if (port.getNamePort().equals(portName)) {
                 port.addPier(pierName, speed);
+                return 1;
             }
         }
+        return 0;
     }
 
 }

@@ -6,7 +6,8 @@ package by.company.Model;
  * @author Maxim Baradzin
  */
 
-public class Constants {
+public final class Constants {
+
     /**
      * Array with target for ship.
      */
@@ -36,8 +37,25 @@ public class Constants {
     public static final String[] CLOTHES_GOODS = {"Adidas", "Nike",
             "Puma", "Dislabel", "Stone Island"};
     /**
-     *
+     * Time delay between saving.
      */
     public static final int FILE_INPUT_TIME = 5000;
 
+    /**
+     * Time delay for work.
+     */
+
+    public static final int WORK_DELAY = 1000;
+
+    /**
+     * Full progress.
+     */
+
+    public static final int FULL_PROGRESS = 100;
+
+    /**
+     * Time of unshipping.
+     */
+
+    public static final int UNSHIP = 6000;
 }

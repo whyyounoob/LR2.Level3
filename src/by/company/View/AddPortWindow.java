@@ -1,15 +1,19 @@
 package by.company.View;
 
+import by.company.Controller.Town;
 import by.company.Model.Constants;
-import by.company.Model.Port;
 import by.company.Model.RegEx;
-import by.company.Model.Town;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+/**
+ * This class create dialog window for adding port.
+ *
+ * @author Maxim Borodin
+ */
 
 public class AddPortWindow extends JDialog {
 
@@ -20,6 +24,10 @@ public class AddPortWindow extends JDialog {
     private JTextField capacityField = new JTextField();
     private JLabel capacityLabel = new JLabel("Enter storage capacity: ");
     private JButton addBtn = new JButton("ADD PORT");
+
+    /**
+     * Constructor which create window.
+     */
 
     public AddPortWindow() {
         super((Dialog) null, "Add Port", true);
@@ -63,27 +71,43 @@ public class AddPortWindow extends JDialog {
         this.setVisible(true);
     }
 
+    /**
+     * Action listener for add button.
+     */
+
     class AddPort implements ActionListener {
 
         @Override
-        public void actionPerformed(ActionEvent e) {
+        public void actionPerformed(final ActionEvent e) {
             String namePort;
             String typeOfCargo;
             long capacity;
-            if (inputName.getText().isEmpty() || capacityField.getText().isEmpty()) {
-                JOptionPane.showMessageDialog(null, "Fill in all the fields.", "Ooops...", 2);
+            int i;
+            if (inputName.getText().isEmpty() || capacityField.getText()
+                    .isEmpty()) {
+                JOptionPane.showMessageDialog(null,
+                        "Fill in all the fields.", "Ooops...", 2);
             } else if (RegEx.checkCapacity(capacityField.getText())) {
                 namePort = inputName.getText();
                 typeOfCargo = (String) listOfCargo.getSelectedItem();
                 capacity = Long.parseLong(capacityField.getText());
-                Town.getInstance().addPort(new Port(namePort, typeOfCargo, capacity));
-                JOptionPane.showMessageDialog(null, "POrt add.", "Niiice.",
-                        JOptionPane.INFORMATION_MESSAGE);
+                i = Town.getInstance().addPort(namePort, typeOfCargo, capacity);
+                if (i == 1) {
+                    MainWindow.addElement(namePort);
+                    JOptionPane.showMessageDialog(null, "Port add.",
+                            "Congratulations.",
+                            JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(null,
+                            "This port`s name is already taken.",
+                            "Ooops...", 2);
 
-                //setPortPanel();
+                }
+
             } else {
                 JOptionPane.showMessageDialog(null,
-                        "Enter the correct capacity of the stock.\n(10e+5-10e+20)", "Ooops...", 2);
+                        "Enter the correct capacity of the stock.(6-20 signs)",
+                        "Ooops...", 2);
 
             }
         }

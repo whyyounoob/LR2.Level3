@@ -1,14 +1,24 @@
 package by.company.View;
 
+import by.company.Controller.Town;
 import by.company.Model.RegEx;
-import by.company.Model.Town;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+/**
+ * This class create dialog window for adding pier.
+ *
+ * @author Maxim Borodin
+ */
+
 public class AddPierWindow extends JDialog {
+
+    /**
+     * The name of the port to which the pier is added.
+     */
 
     private String portName;
     private JLabel nameLabel = new JLabel("Name of pier: ");
@@ -17,8 +27,13 @@ public class AddPierWindow extends JDialog {
     private JTextField speedInput = new JTextField();
     private JButton addBtn = new JButton("Add pier");
 
+    /**
+     * Constructor which create window.
+     *
+     * @param portName name of port
+     */
 
-    public AddPierWindow(String portName) {
+    public AddPierWindow(final String portName) {
         super((Dialog) null, "Add Pier", true);
         this.setBounds(500, 150, 300, 300);
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -50,19 +65,34 @@ public class AddPierWindow extends JDialog {
         this.setVisible(true);
     }
 
+    /**
+     * Action listener for add button.
+     */
+
     class AddButton implements ActionListener {
 
         @Override
-        public void actionPerformed(ActionEvent e) {
-            if (nameInput.getText().isEmpty() || speedInput.getText().isEmpty()) {
-                JOptionPane.showMessageDialog(null, "Fill in all the fields.", "Ooops...", 2);
-            } else if (RegEx.checkpierSpeed(speedInput.getText())) {
-                Town.getInstance().addPier(portName, nameInput.getText(), Integer.parseInt(speedInput.getText()));
-                JOptionPane.showMessageDialog(null, "Pier add.", "Niiice.",
-                        JOptionPane.INFORMATION_MESSAGE);
+        public void actionPerformed(final ActionEvent e) {
+            int i;
+            if (nameInput.getText().isEmpty() || speedInput.getText()
+                    .isEmpty()) {
+                JOptionPane.showMessageDialog(null,
+                        "Fill in all the fields.", "Ooops...", 2);
+            } else if (RegEx.checkPierSpeed(speedInput.getText())) {
+                i = Town.getInstance().addPier(portName, nameInput.getText(),
+                        Integer.parseInt(speedInput.getText()));
+                if (i == 1) {
+                    JOptionPane.showMessageDialog(null,
+                            "Pier add.", "Congratulations.",
+                            1);
+                } else {
+                    JOptionPane.showMessageDialog(null,
+                            "Choose or add port.", "Ooops...", 2);
+                }
             } else {
                 JOptionPane.showMessageDialog(null,
-                        "Enter the correct capacity of the stock.\n(10e+5-10e+20)", "Ooops...", 2);
+                        "Enter the correct speed of pier.(3-4 signs)",
+                        "Ooops...", 2);
             }
         }
     }

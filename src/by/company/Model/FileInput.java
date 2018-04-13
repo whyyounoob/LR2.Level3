@@ -1,11 +1,31 @@
 package by.company.Model;
 
-import java.io.FileNotFoundException;
+import by.company.Controller.Town;
+
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
+/**
+ * This class records the state of a port city in a file.
+ *
+ * @author Maxim Borodin
+ */
 
 public class FileInput extends Thread {
+
+    /**
+     * Default constructor.
+     */
+
+    public FileInput() {
+
+    }
+
+    /**
+     * This method creates a writing thread.
+     */
 
     public void run() {
         while (true) {
@@ -18,6 +38,10 @@ public class FileInput extends Thread {
             }
         }
     }
+
+    /**
+     * This method writes to a file.
+     */
 
     public static void inputFile() {
         FileOutputStream fos = null;

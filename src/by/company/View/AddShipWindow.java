@@ -1,14 +1,20 @@
 package by.company.View;
 
+import by.company.Controller.Town;
 import by.company.Model.Constants;
 import by.company.Model.RegEx;
 import by.company.Model.Ship;
-import by.company.Model.Town;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
+/**
+ * This class create dialog window for adding ship.
+ *
+ * @author Maxim Borodin
+ */
 
 public class AddShipWindow extends JDialog {
 
@@ -23,6 +29,9 @@ public class AddShipWindow extends JDialog {
     private JComboBox targetList = new JComboBox(Constants.SHIP_TARGET);
     private JButton addBtn = new JButton("Add Ship");
 
+    /**
+     * Constructor which create window.
+     */
 
     public AddShipWindow() {
 
@@ -33,13 +42,13 @@ public class AddShipWindow extends JDialog {
         Container container = this.getContentPane();
         container.setLayout(null);
 
-        for(String str : Constants.CLOTHES_GOODS){
+        for (String str : Constants.CLOTHES_GOODS) {
             cargoList.addItem(str);
         }
-        for(String str : Constants.FOOD_GOODS){
+        for (String str : Constants.FOOD_GOODS) {
             cargoList.addItem(str);
         }
-        for(String str : Constants.ILLEGAL_GOODS){
+        for (String str : Constants.ILLEGAL_GOODS) {
             cargoList.addItem(str);
         }
 
@@ -83,29 +92,41 @@ public class AddShipWindow extends JDialog {
         this.setVisible(true);
     }
 
+    /**
+     * Action listener for add button.
+     */
+
     private class AddShipListener implements ActionListener {
 
         @Override
-        public void actionPerformed(ActionEvent e) {
+        public void actionPerformed(final ActionEvent e) {
             int i = 0;
-            if (nameInput.getText().isEmpty() || weightInput.getText().isEmpty()) {
+            if (nameInput.getText().isEmpty()
+                    || weightInput.getText().isEmpty()) {
                 JOptionPane.showMessageDialog(null,
                         "Fill in all the fields.", "Ooops...", 2);
             } else if (RegEx.checkShipWeight(weightInput.getText())) {
                 i = Town.getInstance().addShip(new Ship(nameInput.getText(),
-                        (String) targetList.getSelectedItem(), Integer.parseInt(weightInput.getText())
-                        , (String) cargoList.getSelectedItem()));
+                        (String) targetList.getSelectedItem(),
+                        Integer.parseInt(weightInput.getText()),
+                        (String) cargoList.getSelectedItem()));
+                if (i == 1) {
+                    JOptionPane.showMessageDialog(null,
+                            "Sorry, but we can not accept a "
+                                    + "ship with this load...",
+                            "Ooops", 2);
+                } else {
+                    JOptionPane.showMessageDialog(null, "The ship will be "
+                                    + "successfully taken by our port town",
+                            "Congratulations!",
+                            JOptionPane.INFORMATION_MESSAGE);
+                }
             } else {
                 JOptionPane.showMessageDialog(null,
-                        "Enter the correct capacity of the stock.\n(10e+4-10e+10)", "Ooops...", 2);
+                        "Enter the correct weight of goods.(4-10 signs)",
+                        "Ooops...", 2);
             }
-            if (i == 1) {
-                JOptionPane.showMessageDialog(null,"Sorry, but we can not accept a ship with this load...",
-                        "Ooops", 2);
-            } else {
-                JOptionPane.showMessageDialog(null, "Thw ship will be " +
-                        "successfully taken by our port town", "Congratulations!", JOptionPane.INFORMATION_MESSAGE);
-            }
+
         }
     }
 }

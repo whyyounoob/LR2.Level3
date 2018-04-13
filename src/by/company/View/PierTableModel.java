@@ -1,21 +1,35 @@
 package by.company.View;
 
 import by.company.Model.Port;
-import by.company.Model.Ship;
-import javafx.beans.InvalidationListener;
-
-import java.io.Serializable;
-import java.util.Observable;
 
 import javax.swing.table.AbstractTableModel;
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Observable;
 import java.util.Observer;
 
-public class PierTableModel extends AbstractTableModel implements Observer, Serializable {
+/**
+ * This class create table model for main table.
+ *
+ * @author Maxim Borodin
+ */
+
+public class PierTableModel extends AbstractTableModel
+        implements Observer, Serializable {
+
+    /**
+     * Data for table.
+     */
 
     private ArrayList<Port.Pier> data = new ArrayList<Port.Pier>();
 
-    public void addRow(Port.Pier pier) {
+    /**
+     * This method add row in table.
+     *
+     * @param pier added pier
+     */
+
+    public void addRow(final Port.Pier pier) {
         data.add(pier);
 
         pier.addObserver(this);
@@ -34,7 +48,7 @@ public class PierTableModel extends AbstractTableModel implements Observer, Seri
     }
 
     @Override
-    public Object getValueAt(int rowIndex, int columnIndex) {
+    public Object getValueAt(final int rowIndex, final int columnIndex) {
         Port.Pier pier = (Port.Pier) data.get(rowIndex);
         if (columnIndex == 0) return pier.getNamePier();
         else if (columnIndex == 1) return (Integer) pier.getSpeed();
@@ -57,35 +71,38 @@ public class PierTableModel extends AbstractTableModel implements Observer, Seri
             } else {
                 return (Long) pier.getStartWeight();
             }
-        } else if (columnIndex == 6) return new Float (pier.getProgress());
+        } else if (columnIndex == 6) return new Float(pier.getProgress());
         else return null;
     }
 
     @Override
-    public Class getColumnClass(int c) {
+    public Class getColumnClass(final int c) {
         return GUIConstants.PIER_COLUMN_CLASSES[c];
     }
 
     @Override
-    public String getColumnName(int col) {
+    public String getColumnName(final int col) {
         return GUIConstants.PIER_TABLE_HEADERS[col];
     }
 
     @Override
-    public void update(Observable o, Object arg) {
+    public void update(final Observable o, final Object arg) {
         int index = data.indexOf(o);
-        /*if (index != -1)
-            fireTableRowsUpdated(index, index);*/
+
         fireTableDataChanged();
     }
 
     @Override
-    public boolean isCellEditable(int row, int col) {
+    public boolean isCellEditable(final int row, final int col) {
         return false;
     }
 
-    public void removeAll(){
+    /**
+     * This method remove all rows from table.
+     */
+
+    public void removeAll() {
         data.clear();
-        fireTableRowsDeleted(0,data.size());
+        fireTableRowsDeleted(0, data.size());
     }
 }

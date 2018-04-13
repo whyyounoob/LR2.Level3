@@ -8,6 +8,7 @@ import javax.swing.*;
 import javax.swing.border.LineBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.plaf.FontUIResource;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -68,6 +69,8 @@ public class MainWindow extends JFrame {
         portList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
         portList.addListSelectionListener(new ChoosePort());
+
+        portList.setFont(new Font("Comic Sans MS", 3,20));
 
         container.add(infoPanel);
         infoPanel.setLayout(null);
@@ -347,6 +350,13 @@ public class MainWindow extends JFrame {
         stockStatus.setText(port.getStock().getStockStatus());
         namePortLabel.setText(port.getNamePort());
         leftShipLabel.setText("Ship in queue: " + port.getShipList().size());
+        infoTable.getTableHeader().setResizingAllowed(false);
+        infoTable.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
+        infoTable.getColumnModel().getColumn(0).setPreferredWidth(100);
+        infoTable.getColumnModel().getColumn(1).setPreferredWidth(50);
+        infoTable.getColumnModel().getColumn(2).setPreferredWidth(150);
+        infoTable.getColumnModel().getColumn(4).setPreferredWidth(40);
+        infoTable.getColumnModel().getColumn(5).setPreferredWidth(40);
 
     }
 
